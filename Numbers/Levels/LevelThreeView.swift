@@ -6,7 +6,7 @@ struct LevelThreeView: View {
     @State private var currentLevel = 0
     @State private var cards: [Card] = []
     @State private var showingAlert = false
-    @State private var correctGuesses = 0 // Track the number of correct guesses for the current level
+    @State private var correctGuesses = 0
     
     let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 2)
     
@@ -19,11 +19,12 @@ struct LevelThreeView: View {
     
     var body: some View {
         VStack {
-            Text("Sellect the correct one")
+            Spacer()
+            Text("Select the correct one")
                 .font(.title)
                 .fontWeight(.medium)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 24) // Adds padding around the text for better spacing
+                .padding(.horizontal, 24)
                 .foregroundColor(.blue)
             Spacer()
             Text("Step: \(score)")
@@ -31,32 +32,61 @@ struct LevelThreeView: View {
                 .fontWeight(.bold)
                 .foregroundColor(.blue)
                 .padding(.bottom, 20)
-
-            LazyVGrid(columns: columns, spacing: 30) {
-                ForEach(cards) { card in
-                    if card.isRevealed {
-                        Image(card.imageName)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 150, height: 150)
-                            .padding()
-                            .background(Color.white)
-                            .cornerRadius(10)
-                            .shadow(color: .gray, radius: 5, x: 0, y: 2)
-                            .onTapGesture {
-                                cardTapped(card)
-                            }
-                            .transition(.scale)
+            if(score==10){
+                VStack(spacing: 20) {
+                    Image("congratulationsBanner")
+                        .resizable()
+                        .scaledToFit()
+                    
+                    Text("Congratulations!")
+                        .font(.system(size: 38, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                    
+                        .shadow(color: .white, radius: 2, x: 0, y: 2)
+                    
+                    Text("You've correctly identified all the numbers. Now, you can go back.")
+                        .font(.title3)
+                        .fontWeight(.medium)
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.white.opacity(0.2))
+                        .cornerRadius(15)
+                }
+                .padding()
+                .background(Color.green.opacity(0.7))
+                .cornerRadius(25)
+                .shadow(radius: 15)
+                .padding(20)
+                .transition(.asymmetric(insertion: .scale, removal: .opacity))
+            }else{
+                
+                LazyVGrid(columns: columns, spacing: 30) {
+                    ForEach(cards) { card in
+                        if card.isRevealed {
+                            Image(card.imageName)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 150, height: 150)
+                                .padding()
+                                .background(Color.white)
+                                .cornerRadius(10)
+                                .shadow(color: .gray, radius: 5, x: 0, y: 2)
+                                .onTapGesture {
+                                    cardTapped(card)
+                                }
+                                .transition(.scale)
+                        }
                     }
                 }
             }
-
             Spacer()
         }
         .background(showingAlert ? Color.red : Color.white)
         .animation(.easeOut, value: showingAlert)
         .onAppear(perform: setupGame)
     }
+    
     
     func setupGame() {
         loadLevel(level: currentLevel)
@@ -84,13 +114,12 @@ struct LevelThreeView: View {
                 cards[index].isRevealed = false
                 correctGuesses -= 1
                 if correctGuesses == 0 {
-                    // All correct cards have been found, progress to next level
                     currentLevel += 1
-                    if currentLevel < 10 { // Assume there are 10 levels, 0-9
+                    if currentLevel < 10 {
                         loadLevel(level: currentLevel)
                     } else {
-                        // Game completed, reset or show final score
-                        currentLevel = 0 // Reset to the first level
+                        
+                        currentLevel = 0
                         loadLevel(level: currentLevel)
                     }
                 }

@@ -11,7 +11,7 @@ import SwiftUI
 struct NumbersApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            IntroductionView()
         }
     }
 }

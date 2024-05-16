@@ -8,32 +8,38 @@ struct LevelTwoView: View {
         "number6_correct", "number7_correct", "number8_correct",
         "number9_correct"
     ]
-
+    
     @State private var correctNumberToFind = Int.random(in: 0...9)
     @State private var score = 0
     @State private var isSoundEnabled = true
     @State private var audioPlayer: AVAudioPlayer?
     @State private var applausePlayer: AVAudioPlayer?
-
+    
     var body: some View {
         VStack {
-            Spacer()
-
+            Text("Select asked number")
+                .font(.title)
+                .fontWeight(.medium)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+                .foregroundColor(.blue)
+            
             Text("Score: \(score)")
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .foregroundColor(.blue)
                 .padding(.bottom, 20)
-
+            
+            Spacer()
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
                 ForEach(0..<9, id: \.self) { index in
                     imageButton(for: index)
                 }
-                Spacer().frame(height: 100) // Sol boşluk
-                imageButton(for: 9) // 9 numarası
-                Spacer().frame(height: 100) // Sağ boşluk
+                Spacer().frame(height: 100)
+                imageButton(for: 9)
+                Spacer().frame(height: 100)
             }
-
+            
             Spacer()
         }
         .navigationBarItems(trailing: Button(action: toggleSound) {
@@ -42,7 +48,7 @@ struct LevelTwoView: View {
         })
         .onAppear(perform: startGame)
     }
-
+    
     func imageButton(for number: Int) -> some View {
         Image(numberImages[number])
             .resizable()
@@ -56,65 +62,63 @@ struct LevelTwoView: View {
                 imageTapped(number)
             }
     }
-
+    
     func startGame() {
         score = 0
         pickNewNumber()
     }
-
+    
     func toggleSound() {
         isSoundEnabled.toggle()
-        if isSoundEnabled {
-            playSound(for: correctNumberToFind)
-        }
     }
-
+    
     func imageTapped(_ number: Int) {
         if number == correctNumberToFind {
             score += 1
+            // Stop any playing sound before starting applause
+            audioPlayer?.stop()
             playApplauseSound()
-        } else {
+        } else if isSoundEnabled {
+            // Stop applause before playing the next sound if needed
+            applausePlayer?.stop()
             playSound(for: correctNumberToFind)
         }
     }
-
+    
     func playSound(for number: Int) {
         guard isSoundEnabled, let url = Bundle.main.url(forResource: "\(number)", withExtension: "m4a") else { return }
-        DispatchQueue.global().async {
-            self.audioPlayer?.stop()
-            self.audioPlayer = try? AVAudioPlayer(contentsOf: url)
-            self.audioPlayer?.prepareToPlay()
-            DispatchQueue.main.async {
-                self.audioPlayer?.play()
-            }
-        }
+        audioPlayer = try? AVAudioPlayer(contentsOf: url)
+        audioPlayer?.prepareToPlay()
+        audioPlayer?.play()
     }
-
+    
     func playApplauseSound() {
-        guard isSoundEnabled, let applauseURL = Bundle.main.url(forResource: "alkiss", withExtension: "mp3") else { return }
-        DispatchQueue.global().async {
-            self.applausePlayer?.stop()
-            self.applausePlayer = try? AVAudioPlayer(contentsOf: applauseURL)
-            self.applausePlayer?.prepareToPlay()
-            DispatchQueue.main.async {
-                self.applausePlayer?.play()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    self.pickNewNumber()
-                }
-            }
+        guard isSoundEnabled, let applauseURL = Bundle.main.url(forResource: "applause", withExtension: "mp3") else { return }
+        applausePlayer = try? AVAudioPlayer(contentsOf: applauseURL)
+        applausePlayer?.prepareToPlay()
+        applausePlayer?.play()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + (applausePlayer?.duration ?? 0.5)) {
+            // Ensure the next sound is played after the applause finishes
+            self.pickNewNumber()
         }
     }
-
+    
     func pickNewNumber() {
-        correctNumberToFind = Int.random(in: 0...9)
-        playSound(for: correctNumberToFind)
+        var newNumber: Int
+        repeat {
+            newNumber = Int.random(in: 0...9)
+        } while newNumber == correctNumberToFind
+        correctNumberToFind = newNumber
+        
+        if applausePlayer?.isPlaying == false {
+            playSound(for: correctNumberToFind)
+        }
     }
 }
 
 struct LevelTwoView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
-            LevelTwoView()
-        }
+        LevelTwoView()
     }
 }

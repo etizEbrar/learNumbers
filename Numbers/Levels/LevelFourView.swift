@@ -23,7 +23,7 @@ struct LevelFourView: View {
                         .fontWeight(.bold)
                         .foregroundColor(brightBlue)
                     
-                    Text("Score: \(score)")
+                    Text("Correct Answers: \(score)")
                         .font(.title)
                         .fontWeight(.bold)
                         .foregroundColor(lightGreen)
@@ -46,14 +46,14 @@ struct LevelFourView: View {
                     Button("Submit") {
                         checkAnswer()
                     }
-                    .font(.title) // Adjusted for slightly smaller text
+                    .font(.title)
                     .foregroundColor(.white)
-                    .padding(.vertical, 10) // Reduced vertical padding
+                    .padding(.vertical, 10)
                     .frame(maxWidth: .infinity)
                     .background(softRed)
-                    .cornerRadius(20) // Adjusted for slightly less rounded corners
+                    .cornerRadius(20)
                     .shadow(radius: 5)
-                    .padding(.horizontal, 50) // Adjusted horizontal padding for a narrower button
+                    .padding(.horizontal, 50)
                 }
                 .padding(.bottom, 20)
             }
@@ -73,13 +73,13 @@ struct LevelFourView: View {
             alertTitle = "Oops! The correct answer was \(currentImageNumber)."
         }
         showAlert = true
-        userAnswer = "" // Reset the answer field
+        userAnswer = ""
     }
     
     func loadNewImage() {
         var newImageNumber: Int
         repeat {
-            newImageNumber = Int.random(in: 1...10)
+            newImageNumber = Int.random(in: 1...9)
         } while newImageNumber == currentImageNumber
         currentImageNumber = newImageNumber
     }

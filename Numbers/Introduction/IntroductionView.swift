@@ -5,10 +5,9 @@ struct IntroductionView: View {
     let softRed = Color(red: 0.95, green: 0.36, blue: 0.36)
     let vibrantYellow = Color(red: 1.00, green: 0.84, blue: 0.25)
     let lightGreen = Color(red: 0.48, green: 0.78, blue: 0.46)
-    
+    @State private var path: [Int] = []
     var body: some View {
-        NavigationView {
-            ScrollView {
+        NavigationStack(path: $path) {            ScrollView {
                 VStack(spacing: 20) {
                     Image("welcome-illustration")
                         .resizable()

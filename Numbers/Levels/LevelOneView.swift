@@ -2,6 +2,7 @@ import SwiftUI
 import AVFoundation
 
 struct LevelOneView: View {
+    @Binding var isDone:Bool
     let numberImages = [
         "number0_correct", "number1_correct", "number2_correct",
         "number3_correct", "number4_correct", "number5_correct",
@@ -9,48 +10,45 @@ struct LevelOneView: View {
         "number9_correct"
     ]
     let numberAudioFiles = [
-        "Yeni Kayıt 11", "Yeni Kayıt 12", "Yeni Kayıt 13",
-        "Yeni Kayıt 14", "Yeni Kayıt 15", "Yeni Kayıt 16",
-        "Yeni Kayıt 17", "Yeni Kayıt 18", "Yeni Kayıt 19",
-        "Yeni Kayıt 20"
+        "Record 0", "Record 1", "Record 2", "Record 3",
+        "Record 4", "Record 5", "Record 6",
+        "Record 7", "Record 8", "Record 9"
     ]
     @State private var isSoundEnabled = true
     @State private var audioPlayer: AVAudioPlayer?
-    @State private var path: [Int] = []
     
     var body: some View {
-        NavigationStack(path: $path) {            ScrollView {
-                VStack(spacing: 20) {
-                    Text("Tap on the numbers to hear their sounds.")
-                        .font(.title)
-                        .fontWeight(.medium)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 24) // Adds padding around the text for better spacing
-                        .foregroundColor(.blue)
-
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-                        ForEach(0..<9, id: \.self) { index in
-                            imageButton(for: index)
-                        }
+        ScrollView {
+            VStack(spacing: 20) {
+                Text("Tap on the numbers to hear their sounds.")
+                    .font(.title)
+                    .fontWeight(.medium)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+                    .foregroundColor(.blue)
+                
+                Spacer(minLength: 18)
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
+                    ForEach(0..<9, id: \.self) { index in
+                        imageButton(for: index)
                     }
-
-                    imageButton(for: 9)
-                        .padding(.top, 10) // Adjust the top padding for the 9th button
-
-                    Spacer(minLength: 50) // Adds extra space at the bottom if needed
                 }
-                .padding(.top, 20) // Adds padding at the top of the VStack
-            }
-            .navigationBarItems(trailing: Button(action: toggleSound) {
-                Image(systemName: isSoundEnabled ? "speaker.2.fill" : "speaker.slash.fill")
-                    .foregroundColor(Color(red: 0.95, green: 0.36, blue: 0.36))
-            })
-            .onAppear {
-                configureAudioSession()
-            }
+                
+                imageButton(for: 9)
+                    .padding(.top, 10)
+                Spacer(minLength: 20)                 }
+            .padding(.top, 20) 
+        }
+        .navigationBarItems(trailing: Button(action: toggleSound) {
+            Image(systemName: isSoundEnabled ? "speaker.2.fill" : "speaker.slash.fill")
+                .foregroundColor(Color(red: 0.95, green: 0.36, blue: 0.36))
+        })
+        .onAppear {
+            configureAudioSession()
         }
     }
-
+    
+    
     func imageButton(for number: Int) -> some View {
         Image(numberImages[number])
             .resizable()
@@ -66,18 +64,18 @@ struct LevelOneView: View {
                 }
             }
     }
-
+    
     func toggleSound() {
         isSoundEnabled.toggle()
     }
-
+    
     func playSound(for number: Int) {
         let audioFileName = numberAudioFiles[number]
         guard let url = Bundle.main.url(forResource: audioFileName, withExtension: "m4a") else {
             print("Audio file not found: \(audioFileName)")
             return
         }
-
+        
         do {
             audioPlayer?.stop()
             audioPlayer = try AVAudioPlayer(contentsOf: url)
@@ -87,7 +85,7 @@ struct LevelOneView: View {
             print("Audio playback error: \(error.localizedDescription)")
         }
     }
-
+    
     func configureAudioSession() {
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
@@ -100,6 +98,6 @@ struct LevelOneView: View {
 
 struct LevelOneView_Previews: PreviewProvider {
     static var previews: some View {
-        LevelOneView()
+        LevelOneView(isDone: .constant(true))
     }
 }
